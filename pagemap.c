@@ -648,10 +648,10 @@ struct ssd_info *pre_process_page_raid(struct ssd_info *ssd) {
             while (lpn <= last_lpn) {
                 int nextLpn = lpn;
                 lpn %= ssd->stripe.checkStart;
-                // if(lpn == 4242673){
-                // 	printf("create\n");
-                // 	abort();
-                // }
+//                 if(lpn == 1070624){
+//                 	printf("create\n");
+//                 	abort();
+//                 }
                 lpn += 1;
                 for (i = 0; i < ssd->stripe.all - 1; ++i) {
                     if (ssd->stripe.req[i].lpn == lpn && ssd->stripe.req[i].state != 0) {

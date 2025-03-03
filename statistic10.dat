@@ -1,5 +1,5 @@
 parameter file: page.parameters
-trace file: ./write_trace/62
+trace file: ./read_trace/hm_1.csv
 -----------------------parameter file----------------------
 #parameter file
 #dram capacity = 131072;     #the unit is B
@@ -126,3 +126,9 @@ greed MPW command=1;            #1 for using multi-plane write greedily, 0 for n
 aged=0;                         #1 for making SSD aged, 0 for keeping SSD non-aged
 aged ratio=0.7;                #If we need to make SSD aged, set the aged ratio in advance
 -----------------------simulation output----------------------
+requests            time       gc_count          r_lat          w_lat          w_lsb          w_csb          w_msb           f_gc       mov_page      free_lsb     r_req_count    w_req_count    same_pages       req_lsb       req_csb       req_msb       w_req_count_l    same_pages_l       req_lsb_l       req_csb_l       req_msb_l
+10000,      58400311425,             0,          1000,      10358433,       1480921,       1463695,       1463673,             0,             0,       1315281,          8159,          1840,             0,             0,             0,             0,             0,             0,             0,             0,             0,             0
+20000,     152386437791,             0,          1000,      17023042,          1615,          1618,          1623,             0,             0,       1313666,          8423,          1577,             0,             0,             0,             0,             0,             0,             0,             0,             0,             0
+30000,     211041429020,             0,          1000,      32429694,          3008,          2966,          2959,             0,             0,       1310658,          8087,          1913,             0,             0,             0,             0,             0,             0,             0,             0,             0,             0
+40000,     220251395146,             0,          1000,      22354069,          1502,          1500,          1501,             0,             0,       1309156,          8253,          1747,             0,             0,             0,             0,             0,             0,             0,             0,             0,             0
+50000,     246195650970,             0,          1000,      10624527,           134,           133,           130,             0,             0,       1309022,          9404,           596,             0,             0,             0,             0,             0,             0,             0,             0,             0,             0

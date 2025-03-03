@@ -182,9 +182,14 @@ Status allocate_location(struct ssd_info *ssd, struct sub_request *sub_req) {
                         }else{
                             sub_req->location->channel =ssd->trip2Page[sub_req->raidNUM].Pchannel;
                             //sub_req->location->chip = ssd->trip2Page[sub_req->raidNUM].location->chip;
-
+//                            if (sub_req->lpn == ssd->stripe.checkLpn)//已改
+//                            {
+//                                printf("check->stripe: %d,%d,%d,%d,%d\n", ssd->stripe.nowStripe,
+//                                       sub_req->location->channel,
+//                                       sub_req->location->chip, sub_req->location->die, sub_req->location->plane);
+//                            }
                         }
-                    }else if(ssd->dram->map->map_entry[sub_req->lpn].state!=0) {//数据位更新
+                    }else if(ssd->dram->map->map_entry[sub_req->lpn].state!=0) {//数据位更新写--!=0:说明存在映射关系
                         location = find_location(ssd,ssd->dram->map->map_entry[sub_req->lpn].pn);
                         sub_req->location->channel = location->channel;
                         sub_req->location->chip = location->chip;
@@ -193,12 +198,13 @@ Status allocate_location(struct ssd_info *ssd, struct sub_request *sub_req) {
 //                        sub_req->location->channel = ssd->ssdToken*ssd->perChanSSD+ssd->channelToken;
 //                        sub_req->location->chip = ssd->chipToken;
                         if(++ssd->ssdToken >= (ssd->parameter->channel_number / ssd->perChanSSD)){
-                            ssd->ssdToken = 1;
+                            ssd->ssdToken = 0;
                             if(++ssd->channelToken >= ssd->perChanSSD){
                                 ssd->channelToken = 0;
                                 if(++ssd->chipToken >= ssd->parameter->chip_channel[0])
                                     ssd->chipToken = 0;
                             }
+                            //printf("ssd->channelToken:%d\n",ssd->channelToken);
                         }
                     }
 //                if (sub_req->lpn == ssd->stripe.checkLpn)//已改
@@ -819,7 +825,7 @@ creat_sub_request(struct ssd_info *ssd, unsigned int lpn, int size, unsigned int
     //随后，程序会进一步判断req也就是IO请求项是否为空，若非空则将新定义的sub挂接到req的sub队列队头上去
     //否则若为空则说明创建的子请求是要挂到channel中的，程序会直接进行操作类型operation的判断。
     //把当前请求插入到req的子请求队列里
-    if (req != NULL) {
+    if (req != NULL && req->operation==WRITE) {
         sub->next_subs = req->subs;
         req->subs = sub;
     }

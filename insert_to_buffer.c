@@ -196,24 +196,26 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd,unsigned int lpn,struct sub
 
         //ssd->dram->databuffer->write_miss_hit++;
         //ssd->pop_count++;用于统计
-        if(buffer_node->dirty_clean>0){
+        if(buffer_node->dirty_clean>0){//脏的才弹，干净的不弹--直接删除结点
             sub_req_state = buffer_node->stored;
             sub_req_size = size(buffer_node->stored);
             sub_req_lpn = buffer_node->group;
-            if (ssd->dram->map->map_entry[sub_req_lpn].state == 0 &&
-                ssd->parameter->allocation_scheme == 0 &&
-                ssd->parameter->dynamic_allocation == 2) {//第一次写
-                //creat_sub_write_request_for_raid(ssd, lpn, state, req, mask);
-                creat_sub_write_request_for_raid(ssd, sub_req_lpn, sub_req_state, req,
-                                                 ~(0xffffffff
-                                                         << (ssd->parameter->subpage_page)));//此为第一次组条带的过程
-            } else {
-                sub1=creat_sub_request(ssd, sub_req_lpn, sub_req_size, sub_req_state, req,
-                                  WRITE, 0,
-                                  ssd->page2Trip[sub_req_lpn]);//脏数据就写下去----更新写
-//                creat_sub_request(ssd, lpn, sub_size, state, req, req->operation, target_page_type,
-//                                            ssd->page2Trip[lpn]);
-                ppc_cache(ssd, ssd->page2Trip[sub_req_lpn], sub_req_state, req, mask, sub_req_lpn, sub1);
+            if(req->operation == READ){
+                creat_sub_request(ssd,buffer_node->group,size(buffer_node->stored),buffer_node->stored,req,WRITE,0,ssd->page2Trip[sub_req_lpn]);//将尾结点这个请求挂到请求队列，结点弹下去后，新读结点才能进来，方便计算时间
+            }else{
+                if (ssd->dram->map->map_entry[sub_req_lpn].state == 0 &&
+                    ssd->parameter->allocation_scheme == 0 &&
+                    ssd->parameter->dynamic_allocation == 2) {//第一次写
+                    //creat_sub_write_request_for_raid(ssd, lpn, state, req, mask);
+                    creat_sub_write_request_for_raid(ssd, sub_req_lpn, sub_req_state, req,
+                                                     ~(0xffffffff
+                                                             << (ssd->parameter->subpage_page)));//此为第一次组条带的过程
+                } else {
+                    sub1=creat_sub_request(ssd, sub_req_lpn, sub_req_size, sub_req_state, req,
+                                           WRITE, 0,
+                                           ssd->page2Trip[sub_req_lpn]);//脏数据就写下去----更新写
+                    ppc_cache(ssd, ssd->page2Trip[sub_req_lpn], sub_req_state, req, mask, sub_req_lpn, sub1);
+                }
             }
         }
 
